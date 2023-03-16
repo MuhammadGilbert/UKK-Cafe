@@ -38,61 +38,79 @@ module.exports = {
     });
   },
   addMenu: (req, res) => {
-    let data = {
-      nama_menu: req.body.nama_menu,
-      jenis: req.body.jenis,
-      deskripsi: req.body.deskripsi,
-      gambar: req.file.filename,
-      harga: req.body.harga,
-    };
-    let sql = "insert into menu set ?";
-    db.query(sql, data, (err, result) => {
-      if (err) {
-        throw err;
-      } else {
-        res.json({
-          message: "Success added menu.",
-          data,
-        });
-      }
-    });
+    if (req.session.loggedin) {
+      let data = {
+        nama_menu: req.body.nama_menu,
+        jenis: req.body.jenis,
+        deskripsi: req.body.deskripsi,
+        gambar: req.file.filename,
+        harga: req.body.harga,
+      };
+      let sql = "insert into menu set ?";
+      db.query(sql, data, (err, result) => {
+        if (err) {
+          throw err;
+        } else {
+          res.json({
+            message: "Success added menu.",
+            data,
+          });
+        }
+      });
+    } else {
+      res.status(401).json({
+        logged: false,
+        message: "Please login to access this endpoint!",
+      });
+    }
   },
   Delete: (req, res) => {
-    let id_menu = req.params.id_menu;
-    let sql = `delete from menu where id_menu = ${id_menu}`;
-    db.query(sql, id_menu, (err, result) => {
-      if (err) {
-        throw err;
-      } else {
-        res.json({
-          message: `Successfully delete menu where id = ${id_menu}.`,
-        });
-      }
-    });
+    if (req.session.loggedin) {
+      let id_menu = req.params.id_menu;
+      let sql = `delete from menu where id_menu = ${id_menu}`;
+      db.query(sql, id_menu, (err, result) => {
+        if (err) {
+          throw err;
+        } else {
+          res.json({
+            message: `Successfully delete menu where id = ${id_menu}.`,
+          });
+        }
+      });
+    } else {
+      res.status(401).json({
+        logged: false,
+        message: "Please login to access this endpoint!",
+      });
+    }
   },
   update: (req, res) => {
-    let data = {
-      nama_menu: req.body.nama_menu,
-      jenis: req.body.jenis,
-      deskripsi: req.body.deskripsi,
-      gambar: req.body.gambar_url,
-      harga: req.body.harga,
-    };
+    if (req.session.loggedin) {
+      let id_menu = req.params.id_menu;
+      let data = {
+        nama_menu: req.body.nama_menu,
+        jenis: req.body.jenis,
+        deskripsi: req.body.deskripsi,
+        gambar: req.file.filename,
+        harga: req.body.harga,
+      };
 
-    if (gambar) {
-      data.gambar = req.body.gambar_url;
+      let sql = `update menu set ? where id_menu = ${id_menu}`;
+      db.query(sql, data, (err, result) => {
+        if (err) {
+          throw err;
+        } else {
+          res.json({
+            message: "Success updated menu.",
+            data,
+          });
+        }
+      });
+    } else {
+      res.status(401).json({
+        logged: false,
+        message: "Please login to access this endpoint!",
+      });
     }
-
-    let sql = `update menu set ? where id_menu = ${id_menu}`;
-    db.query(sql, data, (err, result) => {
-      if (err) {
-        throw err;
-      } else {
-        res.json({
-          message: "Success updated menu.",
-          data,
-        });
-      }
-    });
   },
 };

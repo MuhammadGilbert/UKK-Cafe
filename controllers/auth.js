@@ -55,7 +55,7 @@ module.exports = {
                   logged: true,
                   data: result,
                   accessToken: token,
-                  refreshToken: refreshToken,
+                  refreshToken: refreshToken, 
                 });
               } else {
                 res.json({

@@ -3,7 +3,7 @@ const db = require("../db/index");
 
 module.exports = {
   displayAllMeja: (req, res) => {
-    let status = req.query.status;
+    let status = req.query.status_meja;
     let sql;
     if (status) {
       sql = `select * from meja where status_meja = "${status}"`;
@@ -44,50 +44,71 @@ module.exports = {
     });
   },
   addMeja: (req, res) => {
-    let data = {
-      nomor_meja: req.body.nomor_meja,
-      status_meja: "AVAILABLE",
-    };
-    let sql = "insert into meja set ?";
-    db.query(sql, data, (err, result) => {
-      if (err) {
-        throw err;
-      } else {
-        res.json({
-          message: "Success added nomor meja.",
-          data,
-        });
-      }
-    });
+    if (req.session.loggedin) {
+      let data = {
+        nomor_meja: req.body.nomor_meja,
+        status_meja: "AVAILABLE",
+      };
+      let sql = "insert into meja set ?";
+      db.query(sql, data, (err, result) => {
+        if (err) {
+          throw err;
+        } else {
+          res.json({
+            message: "Success added nomor meja.",
+            data,
+          });
+        }
+      });
+    } else {
+      res.status(401).json({
+        logged: false,
+        message: "Please login to access this endpoint!",
+      });
+    }
   },
   Delete: (req, res) => {
-    let id_meja = req.params.id_meja;
-    let sql = `delete from meja where id_meja = ${id_meja}`;
-    db.query(sql, id_meja, (err, result) => {
-      if (err) {
-        throw err;
-      } else {
-        res.json({
-          message: `Successfully delete nomor meja where id = ${id_meja}.`,
-        });
-      }
-    });
+    if (req.session.loggedin) {
+      let id_meja = req.params.id_meja;
+      let sql = `delete from meja where id_meja = ${id_meja}`;
+      db.query(sql, id_meja, (err, result) => {
+        if (err) {
+          throw err;
+        } else {
+          res.json({
+            message: `Successfully delete nomor meja where id = ${id_meja}.`,
+          });
+        }
+      });
+    } else {
+      res.status(401).json({
+        logged: false,
+        message: "Please login to access this endpoint!",
+      });
+    }
   },
   update: (req, res) => {
-    let id_meja = req.params.id_meja;
-    let data = {
-      status_meja: req.body.status_meja,
-    };
-    let sql = "update meja set ? where id_meja = ?";
-    db.query(sql, [data, id_meja], (err, result) => {
-      if (err) {
-        throw err;
-      } else {
-        res.json({
-          message: `Successfully update nomor meja where id_meja = ${id_meja}.`,
-          data,
-        });
-      }
-    });
+    if (req.session.loggedin) {
+      let id_meja = req.params.id_meja;
+      let data = {
+        status_meja: req.body.status_meja,
+      };
+      let sql = "update meja set ? where id_meja = ?";
+      db.query(sql, [data, id_meja], (err, result) => {
+        if (err) {
+          throw err;
+        } else {
+          res.json({
+            message: `Successfully update nomor meja where id_meja = ${id_meja}.`,
+            data,
+          });
+        }
+      });
+    } else {
+      res.status(401).json({
+        logged: false,
+        message: "Please login to access this endpoint!",
+      });
+    }
   },
 };
