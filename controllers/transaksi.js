@@ -60,22 +60,39 @@ module.exports = {
         status: "belum_bayar",
         tgl_transaksi,
       };
-      let sql = "insert into transaksi set ?";
-      db.query(sql, data, (err, result) => {
-        if (err) {
-          throw err;
-        } else {
-          res.json({
-            message: "Success added transaksi.",
-            data,
+
+      // check if the table status is 'AVAILABLE'
+      let sqlCheck =
+        "SELECT * FROM meja WHERE id_meja = ? AND status_meja = 'AVAILABLE'";
+      db.query(sqlCheck, data.id_meja, (err, results) => {
+        if (err) throw err;
+
+        if (results.length === 0) {
+          return res.status(400).json({
+            message: "Table is currently unavailable.",
           });
         }
-      });
-      let sql2 =
-        "update meja set status_meja = 'UNAVAILABLE' where id_meja = ?";
-      db.query(sql2, data.id_meja, (err, results) => {
-        if (err) throw err;
-        console.log("Table status updated successfully");
+
+        // if the table is available, add the transaction
+        let sqlAddTransaksi = "INSERT INTO transaksi SET ?";
+        db.query(sqlAddTransaksi, data, (err, result) => {
+          if (err) {
+            throw err;
+          } else {
+            res.json({
+              message: "Success added transaksi.",
+              data,
+            });
+          }
+        });
+
+        // set the table status to 'UNAVAILABLE'
+        let sqlUpdateMeja =
+          "UPDATE meja SET status_meja = 'UNAVAILABLE' WHERE id_meja = ?";
+        db.query(sqlUpdateMeja, data.id_meja, (err, results) => {
+          if (err) throw err;
+          console.log("Table status updated successfully");
+        });
       });
     } else {
       res.status(401).json({
